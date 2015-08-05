@@ -1300,17 +1300,20 @@ func processStoryboards(storyboards: [StoryboardFile], os: OS) {
 //MARK: MAIN()
 
 if Process.arguments.count == 1 {
-    println("Invalid usage. Missing path to storyboard.")
+    println("Invalid usage. Missing path to storyboard(s).")
     exit(0)
 }
 
-let argument = Process.arguments[1]
-var storyboards:[String] = []
 let storyboardSuffix = ".storyboard"
-if argument.hasSuffix(storyboardSuffix) {
-    storyboards = [argument]
-} else if let s = findStoryboards(argument, storyboardSuffix) {
-    storyboards = s
+let storyboards = flatMap(Process.arguments[1..<Process.arguments.count]) { (argument: String) -> [String] in
+	if argument.hasSuffix(storyboardSuffix) {
+		return [argument]
+	} else if let s = findStoryboards(argument, storyboardSuffix) {
+		return s
+	} else {
+		println("Invalid argument: \(argument)")
+		exit(0)
+	}
 }
 let storyboardFiles: [StoryboardFile] = storyboards.map { StoryboardFile(filePath: $0) }
 
