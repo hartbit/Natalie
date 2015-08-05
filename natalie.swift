@@ -743,8 +743,8 @@ enum OS: String, Printable {
         switch self {
         case iOS:
             switch name {
-			case "viewController":
-				return "UIViewController"
+            case "viewController":
+                return "UIViewController"
             case "navigationController":
                 return "UINavigationController"
             case "tableViewController":
@@ -760,8 +760,8 @@ enum OS: String, Printable {
             }
         case OSX:
             switch name {
-			case "viewController":
-				return "NSViewController"
+            case "viewController":
+                return "NSViewController"
             case "pagecontroller":
                 return "NSPageController"
             case "tabViewController":
@@ -897,20 +897,20 @@ class Storyboard: XMLObject {
         if let initialViewControllerId = xml["document"].element?.attributes["initialViewController"],
             xmlVC = searchById(initialViewControllerId)
         {
-			return self.classNameForViewController(ViewController(xml: xmlVC))
+            return self.classNameForViewController(ViewController(xml: xmlVC))
         }
         return nil
     }
 	
-	private func classNameForViewController(vc: ViewController) -> String? {
-		if let customClassName = vc.customClass {
-			return customClassName
-		} else if let name = vc.name, controllerType = os.controllerTypeForElementName(name) {
-			return controllerType
-		} else {
-			return nil
-		}
-	}
+    private func classNameForViewController(vc: ViewController) -> String? {
+        if let customClassName = vc.customClass {
+            return customClassName
+        } else if let name = vc.name, controllerType = os.controllerTypeForElementName(name) {
+            return controllerType
+        } else {
+            return nil
+        }
+    }
 	
     lazy var version: String? = self.xml["document"].element?.attributes["version"]
 	
@@ -1306,14 +1306,14 @@ if Process.arguments.count == 1 {
 
 let storyboardSuffix = ".storyboard"
 let storyboards = flatMap(Process.arguments[1..<Process.arguments.count]) { (argument: String) -> [String] in
-	if argument.hasSuffix(storyboardSuffix) {
-		return [argument]
-	} else if let s = findStoryboards(argument, storyboardSuffix) {
-		return s
-	} else {
-		println("Invalid argument: \(argument)")
-		exit(0)
-	}
+    if argument.hasSuffix(storyboardSuffix) {
+        return [argument]
+    } else if let s = findStoryboards(argument, storyboardSuffix) {
+        return s
+    } else {
+        println("Invalid argument: \(argument)")
+        exit(0)
+    }
 }
 let storyboardFiles: [StoryboardFile] = storyboards.map { StoryboardFile(filePath: $0) }
 
