@@ -743,6 +743,8 @@ enum OS: String, Printable {
         switch self {
         case iOS:
             switch name {
+			case "viewController":
+				return "UIViewController"
             case "navigationController":
                 return "UINavigationController"
             case "tableViewController":
@@ -758,6 +760,8 @@ enum OS: String, Printable {
             }
         case OSX:
             switch name {
+			case "viewController":
+				return "NSViewController"
             case "pagecontroller":
                 return "NSPageController"
             case "tabViewController":
@@ -893,20 +897,23 @@ class Storyboard: XMLObject {
         if let initialViewControllerId = xml["document"].element?.attributes["initialViewController"],
             xmlVC = searchById(initialViewControllerId)
         {
-            let vc = ViewController(xml: xmlVC)
-            if let customClassName = vc.customClass {
-                return customClassName
-            }
-            
-            if let name = vc.name, controllerType = os.controllerTypeForElementName(name) {
-                return controllerType
-            }
+			return self.classNameForViewController(ViewController(xml: xmlVC))
         }
         return nil
     }
-    
+	
+	private func classNameForViewController(vc: ViewController) -> String? {
+		if let customClassName = vc.customClass {
+			return customClassName
+		} else if let name = vc.name, controllerType = os.controllerTypeForElementName(name) {
+			return controllerType
+		} else {
+			return nil
+		}
+	}
+	
     lazy var version: String? = self.xml["document"].element?.attributes["version"]
-    
+	
     lazy var scenes: [Scene] = {
         if let scenes = self.searchAll(self.xml, attributeKey: "sceneID"){
             return scenes.map { Scene(xml: $0) }
@@ -936,10 +943,10 @@ class Storyboard: XMLObject {
         println("            return self.storyboard.instantiate\(os.storyboardControllerSignatureType)WithIdentifier(identifier)\(os.storyboardControllerReturnTypeCast)")
         println("        }")
         for scene in self.scenes {
-            if let viewController = scene.viewController, customClass = viewController.customClass, storyboardIdentifier = viewController.storyboardIdentifier {
+            if let viewController = scene.viewController, className = self.classNameForViewController(viewController), storyboardIdentifier = viewController.storyboardIdentifier {
                 println()
-                println("        static func instantiate\(storyboardIdentifier.trimAllWhitespacesAndSpecialCharacters)() -> \(customClass)! {")
-                println("            return self.storyboard.instantiate\(os.storyboardControllerSignatureType)WithIdentifier(\"\(storyboardIdentifier)\") as! \(customClass)")
+                println("        static func instantiate\(storyboardIdentifier.trimAllWhitespacesAndSpecialCharacters)() -> \(className)! {")
+                println("            return self.storyboard.instantiate\(os.storyboardControllerSignatureType)WithIdentifier(\"\(storyboardIdentifier)\") as! \(className)")
                 println("        }")
             }
         }
